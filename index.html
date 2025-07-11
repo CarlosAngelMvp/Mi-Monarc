@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Despertar del Monarca</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: black;
+      font-family: 'Orbitron', sans-serif;
+      color: #00ffff;
+    }
+    canvas {
+      display: block;
+    }
+    #hud {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid #00ffff;
+      box-shadow: 0 0 25px #00ffff;
+      padding: 30px;
+      border-radius: 15px;
+      z-index: 10;
+      text-align: center;
+      max-width: 80vw;
+      animation: fadeIn 1s ease forwards;
+    }
+    #textSequence {
+      font-size: 1.2rem;
+      line-height: 2rem;
+      white-space: pre-wrap;
+      text-shadow: 0 0 10px #00ffff;
+    }
+    .button-container {
+      margin-top: 20px;
+    }
+    button {
+      background: black;
+      border: 2px solid #00ffff;
+      color: #00ffff;
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00ffff;
+      margin: 0 10px;
+    }
+    button:hover {
+      background: #00ffff;
+      color: black;
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translate(-50%, -60%); }
+      100% { opacity: 1; transform: translate(-50%, -50%); }
+    }
+  </style>
+</head>
+<body>
+<div id="hud">
+  <div id="textSequence"></div>
+  <div class="button-container" style="display:none">
+    <button onclick="respond(true)">YES</button>
+    <button onclick="respond(false)">NO</button>
+  </div>
+</div><audio id="music" src="die-with-a-smile.mp3" loop preload="auto"></audio> <audio id="click" src="https://www.soundjay.com/buttons/sounds/button-16.mp3" preload="auto"></audio>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script><script>
+  const textEl = document.getElementById("textSequence");
+  const buttons = document.querySelector(".button-container");
+  const click = document.getElementById("click");
+  const music = document.getElementById("music");
+  document.body.addEventListener("click", () => music.play(), { once: true });
+
+  const messages = [
+    "[Sistema Inicializado...]",
+    "[Escaneando aura del usuario...]",
+    "[Aura detectada: Monarca Carlos]",
+    "[Enlace emocional detectado: Aly 💖]",
+    "¿Deseas completar el despertar y formar el vínculo eterno?"
+  ];
+
+  let index = 0;
+  function showNext() {
+    if (index < messages.length) {
+      typeLine(messages[index], () => {
+        index++;
+        setTimeout(showNext, 1200);
+      });
+    } else {
+      buttons.style.display = 'flex';
+    }
+  }
+
+  function typeLine(line, callback) {
+    let i = 0;
+    textEl.innerHTML = '';
+    const interval = setInterval(() => {
+      textEl.innerHTML += line.charAt(i);
+      i++;
+      if (i >= line.length) {
+        clearInterval(interval);
+        callback();
+      }
+    }, 40);
+  }
+
+  function respond(yes) {
+    click.play();
+    buttons.style.display = 'none';
+    if (yes) {
+      textEl.innerHTML = '';
+      typeLine("[Contrato aceptado...]\n[Monarca Carlos y Aly 💖 ahora están enlazados para siempre...]\n[La vida de un Monarca... comienza con un Te Quiero.]", () => {});
+    } else {
+      textEl.innerHTML = '';
+      typeLine("[Despertar cancelado...]\n[Sistema en modo de espera...]", () => {});
+    }
+  }
+
+  showNext();
+
+  // Fondo estrellado 3D
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({antialias: true});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  const starsGeometry = new THREE.BufferGeometry();
+  const starCount = 1500;
+  const positions = [];
+  for (let i = 0; i < starCount; i++) {
+    positions.push((Math.random() - 0.5) * 2000);
+    positions.push((Math.random() - 0.5) * 2000);
+    positions.push((Math.random() - 0.5) * 2000);
+  }
+  starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  const starsMaterial = new THREE.PointsMaterial({ color: 0x00ffff });
+  const starField = new THREE.Points(starsGeometry, starsMaterial);
+  scene.add(starField);
+
+  camera.position.z = 5;
+  function animate() {
+    requestAnimationFrame(animate);
+    starField.rotation.x += 0.0003;
+    starField.rotation.y += 0.0005;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script></body>
+    </html>
